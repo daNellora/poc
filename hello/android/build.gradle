@@ -1,0 +1,45 @@
+group 'com.example.hello'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+      /*  flatDir {
+            dirs 'libs'
+        }*/
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.2.2'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral {url 'https://jitpack.io'}
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 31
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion 18
+    }
+}
+dependencies{
+    //implementation api(name:'ironchipauthenticatorgolangsdk',ext:'aar')
+    // implementation (name:'ironchipauthenticatorgolangsdk', ext: 'aar')
+    //implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files('libs/classes.jar')
+    implementation 'com.github.mikel-jauregui-ironchip:Authenticator-SDK:0.0.2'
+}
