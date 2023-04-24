@@ -44,6 +44,7 @@ dependencies:
     path: ./hello
   path_provider: ^2.0.14
   otp: ^3.1.3
+  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:

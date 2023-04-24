@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hello/hello.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:otp/otp.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
@@ -85,8 +86,9 @@ class _pantallaInicialState extends State<pantallaInicial> {
                   ElevatedButton(
                     child: Text('Register'),
                     style: ElevatedButton.styleFrom(
-                        primary: myController.text.isEmpty? Colors.grey : Color.fromRGBO(149, 193, 31, 1)),
-                       
+                        backgroundColor: myController.text.isEmpty
+                            ? Colors.grey
+                            : Color.fromRGBO(149, 193, 31, 1)),
                     onPressed: () async {
                       //String packageName = packageInfo.packageName;
 
@@ -108,6 +110,13 @@ class _pantallaInicialState extends State<pantallaInicial> {
                               .writeStorage("registerToken", token);
                           var loadToken = await storageService()
                               .readStorage("registerToken");
+                          await plugin.unauthorizeSetDNS();
+                          await plugin.unauthorizeSetProxy();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('You can now login'),
+                            ),
+                          );
                           if (kDebugMode) {
                             print("FLUTTER token from database: $loadToken");
                           }
@@ -124,28 +133,47 @@ class _pantallaInicialState extends State<pantallaInicial> {
                   ElevatedButton(
                     child: Text('Login'),
                     style: ElevatedButton.styleFrom(
-                        primary: Color.fromRGBO(149, 193, 31, 1)),
+                        backgroundColor: const Color.fromRGBO(149, 193, 31, 1)),
                     onPressed: () async {
-                      String version = packageInfo.version;
-                      String? loadedToken =
-                          await storageService().readStorage("registerToken");
-                      var result = await plugin.login(
-                        "https://testing.api.ironchip.com",
-                        version,
-                        loadedToken!,
-                        "wss://testing.api.ironchip.com/notifications",
-                      );
-                      print(
-                        'FLUTTER result login: $result',
-                      );
-                      //Navigator.of(context).pushReplacementNamed('/pantallaLogin');
-                      Navigator.pushNamed(context, '/second');
+                      try {
+                        var status = await Permission.location.status;
+                        if (status.isDenied) {
+                          Map<Permission, PermissionStatus> statuses = await [
+                            Permission.location,
+                            Permission.locationAlways,
+                            Permission.locationWhenInUse
+                          ].request();
+                          print(statuses[Permission.location]);
+                        } else {
+                          String version = packageInfo.version;
+                          String? loadedToken = await storageService()
+                              .readStorage("registerToken");
+                          if (loadedToken == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('Please register first')));
+                          } else {
+                            var result = await plugin.login(
+                              "https://testing.api.ironchip.com",
+                              version,
+                              loadedToken,
+                              "wss://testing.api.ironchip.com/notifications",
+                            );
+                            print(
+                              'FLUTTER result login: $result',
+                            );
+                            //Navigator.of(context).pushReplacementNamed('/pantallaLogin');
+                            Navigator.pushNamed(context, '/second');
+                          }
+                        }
+                      } on Exception catch (e) {
+                        print('FLUTTER login error $e');
+                      }
                     },
                   ),
                   ElevatedButton(
                     child: Text('OTP'),
                     style: ElevatedButton.styleFrom(
-                        primary: Color.fromRGBO(149, 193, 31, 1)),
+                       backgroundColor: const Color.fromRGBO(149, 193, 31, 1)),
                     onPressed: () async {
                       String? loadOTPToken =
                           await storageService().readStorage("OTPKey");
@@ -157,8 +185,8 @@ class _pantallaInicialState extends State<pantallaInicial> {
                             .writeStorage("OTPKey", otpToken!);
                         loadOTPToken =
                             await storageService().readStorage("OTPKey");
-                        await plugin.sendOTPToken(loadOTPToken!);
-                        await plugin.existOTPToken(loadOTPToken);
+                        //await plugin.sendOTPToken(loadOTPToken!);
+                        await plugin.existOTPToken(loadOTPToken!);
                         /* String optPass = OTP.generateHOTPCodeString(
                             loadOTPToken, 1362302550000);
                         await storageService().writeStorage("OTPPass", optPass);

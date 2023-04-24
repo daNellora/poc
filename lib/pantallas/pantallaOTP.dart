@@ -70,33 +70,20 @@ class _MyWidgetState extends State<pantallaOTP> {
                     ElevatedButton(
                       child: Text('Create new OTP'),
                       style: ElevatedButton.styleFrom(
-                          primary: Color.fromRGBO(149, 193, 31, 1)),
+                          backgroundColor: const Color.fromRGBO(149, 193, 31, 1)),
                       onPressed: () async {
-                        /*var otpToken = await plugin.newotp();
-                        await storageService()
-                            .writeStorage("OTPKey", otpToken!);*/
                         String code = myController.text;
 
-                        if (code.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Enter a valid code')));
-                          return;
-                        } else {
-                          await plugin.setOTP(code);
-                          /*String? secret =
-                              await storageService().readStorage('OTPKey');
-                          String optPass = OTP.generateHOTPCodeString(code, 60);
-                          await storageService()
-                              .writeStorage("OTPPass", optPass);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content:
-                                  Text('New OTP Created  \nCode: $optPass'),
-                            ),
-                          );
-                          //Navigator.pushNamed(context, '/');
-                          print('FLUTTER OTP Code: $optPass');
-                          print('FLUTTER OTP Url: $code'); */
+                        try {
+                          if (code.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Enter a valid code')));
+                            return;
+                          } else {
+                            await plugin.setOTP(code);
+                          }
+                        } on Exception catch (e) {
+                          print('FLUTTER error creating OTP $e');
                         }
                       },
                     ),
@@ -106,20 +93,23 @@ class _MyWidgetState extends State<pantallaOTP> {
                     ElevatedButton(
                       child: Text('Display secret'),
                       style: ElevatedButton.styleFrom(
-                          primary: Color.fromRGBO(149, 193, 31, 1)),
+                          backgroundColor: const Color.fromRGBO(149, 193, 31, 1)),
                       onPressed: () async {
-                        var otpCode =
-                            await plugin.generateOTPKey(otpList[0], otpList[1]);
-
-                        if (otpCode == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text('No secret has been created')));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Secret:  $otpCode'),
-                            ),
-                          );
+                        try {
+                          if (otpList == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('No secret has been created')));
+                          } else {
+                            var otpCode = await plugin.generateOTPKey(
+                                otpList[0], otpList[1]);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Secret:  $otpCode'),
+                              ),
+                            );
+                          }
+                        } on Exception catch (e) {
+                          print('FLUTTER error displaying secret $e');
                         }
 
                         //Navigator.pushNamed(context, '/');
@@ -135,12 +125,21 @@ class _MyWidgetState extends State<pantallaOTP> {
                     ElevatedButton(
                       child: Text('OTP List'),
                       style: ElevatedButton.styleFrom(
-                          primary: Color.fromRGBO(149, 193, 31, 1)),
+                          backgroundColor: const Color.fromRGBO(149, 193, 31, 1)),
                       onPressed: () async {
                         try {
-                          otpList = await plugin.getOTPList();
+                          if (otpList == null){
+                               ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('No OTP to show'),
+                              ),
+                            );
+                          } else {
+                            otpList = await plugin.getOTPList();
 
                           print('FLUTTER otp: $otpList');
+                          }
+                          
                         } catch (error) {
                           print('error listing otps');
                         }
@@ -154,7 +153,7 @@ class _MyWidgetState extends State<pantallaOTP> {
                     ElevatedButton(
                       child: Text('Delete OTP'),
                       style: ElevatedButton.styleFrom(
-                          primary: Color.fromRGBO(149, 193, 31, 1)),
+                          backgroundColor: const Color.fromRGBO(149, 193, 31, 1)),
                       onPressed: () async {
                         try {
                           var delete =

@@ -33,13 +33,14 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 18
+    minSdkVersion 26
     }
 }
 dependencies{
     //implementation api(name:'ironchipauthenticatorgolangsdk',ext:'aar')
     // implementation (name:'ironchipauthenticatorgolangsdk', ext: 'aar')
     //implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation files('libs/classes.jar')
-    implementation 'com.github.mikel-jauregui-ironchip:Authenticator-SDK:0.0.2'
+    //implementation files('libs/classes.jar')
+    implementation 'com.github.mikel-jauregui-ironchip:Authenticator-SDK:0.0.4'
+    implementation files('libs/androidcommons.jar')
 }
